@@ -1,0 +1,45 @@
+# Controls what the EB CLI packs into the deployment bundle.
+# When .ebignore exists, the EB CLI uses it *instead of* .gitignore.
+#
+# Do not ignore: Dockerfile, Dockerrun.aws.json, .ebextensions/, .platform/
+
+# Secrets — env vars are set on the environment, never shipped in the bundle.
+.env
+.env.*
+!.env.example
+
+# Runtime data — /app/storage and /app/logs are host-mounted volumes.
+storage/
+logs/
+
+# Local test fixtures
+*.pdf
+*.docx
+cmd/gentestpdf/
+
+# Build artifacts
+bin/
+tmp/
+vendor/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Compiled server binaries from manual deploys — extensionless, so the patterns
+# above miss them. EB builds from source via the Dockerfile.
+myapp
+docassist
+server
+main
+
+# Tooling
+.git/
+.gitignore
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

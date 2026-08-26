@@ -1,0 +1,41 @@
+# Environment — NEVER commit these
+.env
+.env.local
+.env.*.local
+
+# Go
+backend/bin/
+backend/tmp/
+backend/storage/
+backend/logs/
+backend/vendor/
+*.exe
+
+# Flutter
+flutter/docassist_app/.dart_tool/
+flutter/docassist_app/.flutter-plugins
+flutter/docassist_app/.flutter-plugins-dependencies
+flutter/docassist_app/build/
+flutter/docassist_app/android/.gradle/
+flutter/docassist_app/android/local.properties
+flutter/docassist_app/android/key.properties
+flutter/docassist_app/ios/Pods/
+flutter/docassist_app/windows/flutter/ephemeral/
+
+# Docker
+docker/secrets/
+
+# Elastic Beanstalk
+dist/
+backend/.elasticbeanstalk/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+backend/myapp

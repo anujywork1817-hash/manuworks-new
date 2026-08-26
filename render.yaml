@@ -1,0 +1,96 @@
+databases:
+  - name: lexdocs-postgres
+    databaseName: docassist_db
+    user: docassist
+    plan: free
+    region: singapore
+
+services:
+  - type: web
+    name: lexdocs-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: singapore
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # App
+      - key: APP_NAME
+        value: LexDocs
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: info
+      - key: LOG_OUTPUT
+        value: stdout
+      - key: SWAGGER_ENABLED
+        value: "false"
+
+      # PostgreSQL — auto-filled from the database above
+      - key: POSTGRES_SSL_MODE
+        value: require
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: lexdocs-postgres
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: lexdocs-postgres
+          property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: lexdocs-postgres
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: lexdocs-postgres
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: lexdocs-postgres
+          property: database
+
+      # JWT — auto-generated random secrets, longer expiry so app stays logged in
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 24h
+      - key: JWT_REFRESH_EXPIRY
+        value: 168h
+
+      # AI — set manually in Render dashboard after deploy
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+
+      # Redis — set manually (use Upstash free tier: upstash.com)
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+
+      # Qdrant — set manually (use Qdrant Cloud free tier: cloud.qdrant.io)
+      - key: QDRANT_HOST
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_PORT
+        value: "6333"
+
+      # CORS — allow all origins so the mobile app can connect
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+
+      # Storage
+      - key: STORAGE_LOCAL_PATH
+        value: /app/storage

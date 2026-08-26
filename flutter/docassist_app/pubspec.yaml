@@ -1,0 +1,87 @@
+name: docassist
+description: AI-powered document assistant — Flutter frontend
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── State Management ─────────────────────────────────────────────────────
+  flutter_riverpod: ^2.5.1        # State management
+  riverpod_annotation: ^2.3.5     # Code gen annotations
+
+  # ── Networking ───────────────────────────────────────────────────────────
+  dio: ^5.4.3                     # HTTP client with interceptors
+  pretty_dio_logger: ^1.3.1       # Log API calls in debug mode
+
+  # ── Secure Storage ───────────────────────────────────────────────────────
+  flutter_secure_storage: ^10.3.1  # Store JWT tokens securely
+
+  # ── Routing ──────────────────────────────────────────────────────────────
+  go_router: ^13.2.0              # Declarative routing
+
+  # ── UI Components ────────────────────────────────────────────────────────
+  google_fonts: ^6.2.1            # Typography
+  flutter_svg: ^2.0.10+1          # SVG support
+  cached_network_image: ^3.3.1    # Image caching
+  shimmer: ^3.0.0                 # Loading skeletons
+  lottie: ^3.1.0                  # Animations
+  fl_chart: ^0.68.0               # Charts for dashboard
+  percent_indicator: ^4.2.3       # Progress indicators
+
+  # ── File Handling ────────────────────────────────────────────────────────
+  file_picker: ^8.0.3             # Pick PDF/DOCX files
+  image_picker: ^1.1.2            # Camera/gallery image capture for OCR
+  open_file: ^3.3.2               # Open downloaded files
+  path_provider: ^2.1.3           # Get device paths
+  path: ^1.9.0                    # Path utilities
+
+  # ── Utilities ────────────────────────────────────────────────────────────
+  intl: ^0.19.0                   # Date/number formatting
+  timeago: ^3.6.1                 # "2 hours ago" formatting
+  uuid: ^4.4.0                    # Generate UUIDs
+  equatable: ^2.0.5               # Value equality
+  freezed_annotation: ^2.4.1      # Immutable models
+  json_annotation: ^4.9.0         # JSON serialization
+  shared_preferences: ^2.5.5      # Simple key-value storage
+  connectivity_plus: ^6.0.3       # Network status
+  url_launcher: ^6.3.0            # Open URLs
+
+  # ── Payments ─────────────────────────────────────────────────────────────
+  razorpay_flutter: ^1.4.0        # Razorpay checkout
+
+  # ── Notifications ────────────────────────────────────────────────────────
+  flutter_local_notifications: ^17.2.3  # Local push notifications
+
+  # ── Chat UI ──────────────────────────────────────────────────────────────
+  dash_chat_2: ^0.0.21            # Chat bubble UI
+
+  # ── Markdown Rendering ───────────────────────────────────────────────────
+  flutter_markdown: ^0.7.3+1      # Render AI-generated results (headings, bullets, bold)
+
+  # ── Document Viewer ──────────────────────────────────────────────────────
+  syncfusion_flutter_pdfviewer: ^33.2.12  # PDF viewer
+
+  # ── Document Export (drafted documents → PDF / Word) ────────────────────
+  pdf: ^3.11.1                     # Generate PDF files client-side
+  printing: ^5.13.1                # Native print dialog for generated PDFs
+  archive: ^3.6.1                  # Build minimal .docx (zip + XML) client-side
+  share_plus: ^10.0.2              # Share/save generated PDF & Word files
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # Code generation
+  build_runner: ^2.4.9
+  riverpod_generator: ^2.4.0
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+
+flutter:
+  uses-material-design: true

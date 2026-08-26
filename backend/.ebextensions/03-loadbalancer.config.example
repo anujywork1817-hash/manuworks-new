@@ -1,0 +1,30 @@
+# OPTIONAL — only for a *load-balanced* environment.
+#
+# Elastic Beanstalk only reads files ending in `.config`, so this file is inert
+# as shipped. To use it:  rename to `03-loadbalancer.config`.
+#
+# Do NOT enable it on a single-instance environment: there is no load balancer,
+# and EB rejects the deployment with
+# "Configuration validation exception: Invalid option specification".
+#
+# Why you need it if you are load-balanced: the ALB's own idle timeout defaults
+# to 60s and it will cut long AI/OCR requests off at the load balancer, before
+# nginx's 300s timeout (.platform/nginx/conf.d/proxy.conf) or the Go server's
+# 300s WriteTimeout ever apply.
+
+option_settings:
+  aws:elbv2:loadbalancer:
+    IdleTimeout: 300
+
+  aws:elasticbeanstalk:environment:process:default:
+    HealthCheckPath: /health
+    HealthCheckInterval: 30
+    HealthCheckTimeout: 10
+    HealthyThresholdCount: 3
+    UnhealthyThresholdCount: 5
+    # /health returns 503 when Postgres is unreachable, which is what we want
+    # the target group to act on.
+    MatcherHTTPCode: "200"
+    Port: 80
+    Protocol: HTTP
+    StickinessEnabled: true

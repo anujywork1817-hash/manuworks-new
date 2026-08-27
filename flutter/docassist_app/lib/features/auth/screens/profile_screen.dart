@@ -589,10 +589,27 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
     super.initState();
     _firstCtrl = TextEditingController(text: widget.initialFirstName);
     _lastCtrl  = TextEditingController(text: widget.initialLastName);
+    _firstCtrl.addListener(_onNameChanged);
+    _lastCtrl.addListener(_onNameChanged);
   }
 
+  void _onNameChanged() => setState(() {});
+
   @override
-  void dispose() { _firstCtrl.dispose(); _lastCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _firstCtrl.removeListener(_onNameChanged);
+    _lastCtrl.removeListener(_onNameChanged);
+    _firstCtrl.dispose(); _lastCtrl.dispose();
+    super.dispose();
+  }
+
+  String get _liveInitials {
+    final f = _firstCtrl.text.trim();
+    final l = _lastCtrl.text.trim();
+    if (f.isNotEmpty && l.isNotEmpty) return '${f[0]}${l[0]}'.toUpperCase();
+    if (f.isNotEmpty) return f.substring(0, f.length >= 2 ? 2 : 1).toUpperCase();
+    return '?';
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -624,56 +641,156 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   @override
   Widget build(BuildContext context) {
     final cs     = Theme.of(context).colorScheme;
+    final tt     = Theme.of(context).textTheme;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Center(child: Container(width: 36, height: 4,
-              decoration: BoxDecoration(color: cs.outline, borderRadius: BorderRadius.circular(2)))),
-          const SizedBox(height: 20),
-          Text('Edit Profile', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _firstCtrl,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'First Name', prefixIcon: Icon(Icons.person_outline_rounded)),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Required';
-              if (v.trim().length < 2) return 'Minimum 2 characters';
-              return null;
-            },
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: bottom),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+          child: Form(
+            key: _formKey,
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Center(child: Container(width: 36, height: 4,
+                  decoration: BoxDecoration(color: cs.outline, borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 20),
+
+              // ── Gradient hero with live-updating avatar ──────────────────
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 28),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft, end: Alignment.bottomRight,
+                    colors: [cs.primary, cs.primary.withValues(alpha: 0.65), cs.secondary.withValues(alpha: 0.8)],
+                  ),
+                ),
+                child: Column(children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                    child: Container(
+                      key: ValueKey(_liveInitials),
+                      width: 76, height: 76,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.22),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2.5),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(_liveInitials,
+                        style: const TextStyle(color: Colors.white, fontSize: 26,
+                            fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Edit Profile',
+                    style: tt.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 2),
+                  Text('Update how your name appears',
+                    style: tt.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.85))),
+                ]),
+              ),
+              const SizedBox(height: 24),
+
+              Text('FIRST NAME', style: tt.labelSmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.5), letterSpacing: 1, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              TextFormField(
+                controller: _firstCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  hintText: 'e.g. Priya',
+                  prefixIcon: const Icon(Icons.badge_outlined),
+                  filled: true,
+                  fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: cs.primary, width: 1.6)),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Required';
+                  if (v.trim().length < 2) return 'Minimum 2 characters';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              Text('LAST NAME', style: tt.labelSmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.5), letterSpacing: 1, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              TextFormField(
+                controller: _lastCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  hintText: 'e.g. Sharma',
+                  prefixIcon: const Icon(Icons.badge_outlined),
+                  filled: true,
+                  fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: cs.primary, width: 1.6)),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Required';
+                  if (v.trim().length < 2) return 'Minimum 2 characters';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 28),
+              Row(children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      side: BorderSide(color: cs.outline),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      gradient: LinearGradient(colors: [cs.primary, cs.secondary]),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: cs.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: _isLoading
+                          ? SizedBox(width: 20, height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary))
+                          : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                              Icon(Icons.check_rounded, size: 18),
+                              SizedBox(width: 6),
+                              Text('Save Changes', style: TextStyle(fontWeight: FontWeight.w700)),
+                            ]),
+                    ),
+                  ),
+                ),
+              ]),
+            ]),
           ),
-          const SizedBox(height: 14),
-          TextFormField(
-            controller: _lastCtrl,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Last Name', prefixIcon: Icon(Icons.person_outline_rounded)),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Required';
-              if (v.trim().length < 2) return 'Minimum 2 characters';
-              return null;
-            },
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _submit,
-              child: _isLoading
-                  ? SizedBox(width: 20, height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary))
-                  : const Text('Save Changes'),
-            ),
-          ),
-        ]),
+        ),
       ),
     );
   }

@@ -141,7 +141,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     const SizedBox(height: 14),
                     IntrinsicHeight(child: Row(children: [
                       Expanded(child: _AiToolCard(
-                        icon: Icons.summarize_outlined,
+                        icon: Icons.summarize_rounded,
+                        color: const Color(0xFF6366F1),
                         title: 'Generate Summary',
                         subtitle: 'Turn long docs into concise summaries',
                         credits: UsageTracker.creditsFor('summarize'),
@@ -150,7 +151,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       )),
                       const SizedBox(width: 10),
                       Expanded(child: _AiToolCard(
-                        icon: Icons.edit_note_outlined,
+                        icon: Icons.edit_note_rounded,
+                        color: const Color(0xFFF97316),
                         title: 'Drafter',
                         subtitle: 'Draft documents tailored to your needs',
                         credits: UsageTracker.creditsFor('draft'),
@@ -161,7 +163,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     const SizedBox(height: 10),
                     IntrinsicHeight(child: Row(children: [
                       Expanded(child: _AiToolCard(
-                        icon: Icons.translate_outlined,
+                        icon: Icons.translate_rounded,
+                        color: const Color(0xFF06B6D4),
                         title: 'Translator',
                         subtitle: 'Translate documents instantly',
                         credits: UsageTracker.creditsFor('translate'),
@@ -170,7 +173,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       )),
                       const SizedBox(width: 10),
                       Expanded(child: _AiToolCard(
-                        icon: Icons.document_scanner_outlined,
+                        icon: Icons.document_scanner_rounded,
+                        color: const Color(0xFF10B981),
                         title: 'OCR',
                         subtitle: 'Convert scanned docs to editable text',
                         credits: UsageTracker.creditsFor('ocr'),
@@ -181,7 +185,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     const SizedBox(height: 10),
                     IntrinsicHeight(child: Row(children: [
                       Expanded(child: _AiToolCard(
-                        icon: Icons.timeline_outlined,
+                        icon: Icons.timeline_rounded,
+                        color: const Color(0xFFF59E0B),
                         title: 'Timeline Generator',
                         subtitle: 'Visualize events in sequence over time',
                         credits: UsageTracker.creditsFor('timeline'),
@@ -190,7 +195,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       )),
                       const SizedBox(width: 10),
                       Expanded(child: _AiToolCard(
-                        icon: Icons.chat_bubble_outline_rounded,
+                        icon: Icons.chat_bubble_rounded,
+                        color: const Color(0xFF0EA5E9),
                         title: 'Ask Questions',
                         subtitle: 'Ask questions & get cited answers',
                         credits: UsageTracker.creditsFor('ai_chat'),
@@ -202,6 +208,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     IntrinsicHeight(child: Row(children: [
                       Expanded(child: _AiToolCard(
                         icon: Icons.compare_arrows_rounded,
+                        color: const Color(0xFFEC4899),
                         title: 'Compare Documents',
                         subtitle: 'Compare two documents side by side',
                         credits: UsageTracker.creditsFor('compare'),
@@ -210,7 +217,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       )),
                       const SizedBox(width: 10),
                       Expanded(child: _AiToolCard(
-                        icon: Icons.gavel_outlined,
+                        icon: Icons.gavel_rounded,
+                        color: const Color(0xFF9333EA),
                         title: 'Citation Verifier',
                         subtitle: 'Verify citations instantly',
                         credits: UsageTracker.creditsFor('citations'),
@@ -321,6 +329,7 @@ class _QuickCard extends StatelessWidget {
 
 class _AiToolCard extends StatelessWidget {
   final IconData icon;
+  final Color color;
   final String title, subtitle;
   final int credits;
   final String? badge; // e.g. 'NEW' / 'PRO'
@@ -329,7 +338,7 @@ class _AiToolCard extends StatelessWidget {
   final TextTheme tt;
 
   const _AiToolCard({
-    required this.icon, required this.title, required this.subtitle,
+    required this.icon, required this.color, required this.title, required this.subtitle,
     required this.credits,
     required this.onTap, required this.cs, required this.tt,
   }) : badge = null;
@@ -343,6 +352,8 @@ class _AiToolCard extends StatelessWidget {
         color: cs.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: cs.outline),
+        boxShadow: [BoxShadow(
+          color: color.withValues(alpha: 0.10), blurRadius: 10, offset: const Offset(0, 3))],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // Icon + optional badge
@@ -350,11 +361,14 @@ class _AiToolCard extends StatelessWidget {
           Container(
             width: 32, height: 32,
             decoration: BoxDecoration(
-              color: cs.primaryContainer,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                colors: [color, color.withValues(alpha: 0.7)],
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.center,
-            child: Icon(icon, color: cs.primary, size: 16),
+            child: Icon(icon, color: Colors.white, size: 16),
           ),
           if (badge != null) ...[
             const Spacer(),

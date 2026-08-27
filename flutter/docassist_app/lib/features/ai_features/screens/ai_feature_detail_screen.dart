@@ -34,26 +34,29 @@ const Map<String, List<String>> kAiFeatureCopy = {
 };
 
 /// Icon + label lookup for every AI feature, shared with the AiFeaturesScreen
-/// grid so both stay in sync.
+/// grid so both stay in sync. Each feature carries its own accent color so
+/// the grid reads like a set of distinct app/extension icons rather than one
+/// flat monochrome block.
 class AiFeatureInfo {
   final String id;
   final IconData icon;
   final String label;
-  const AiFeatureInfo(this.id, this.icon, this.label);
+  final Color color;
+  const AiFeatureInfo(this.id, this.icon, this.label, this.color);
 }
 
 const kAiFeatures = [
-  AiFeatureInfo('summarize', Icons.summarize_outlined, 'Summarize'),
-  AiFeatureInfo('keypoints', Icons.list_outlined, 'Key Points'),
-  AiFeatureInfo('timeline', Icons.timeline_outlined, 'Timeline'),
-  AiFeatureInfo('actions', Icons.task_alt_outlined, 'Actions'),
-  AiFeatureInfo('analyze', Icons.analytics_outlined, 'Analyze'),
-  AiFeatureInfo('translate', Icons.translate_outlined, 'Translate'),
-  AiFeatureInfo('citations', Icons.gavel_outlined, 'Citations'),
-  AiFeatureInfo('risks', Icons.warning_amber_outlined, 'Risk Scan'),
-  AiFeatureInfo('deadlines', Icons.event_outlined, 'Deadlines'),
-  AiFeatureInfo('autotags', Icons.label_outlined, 'Auto-Tags'),
-  AiFeatureInfo('grammar', Icons.spellcheck_outlined, 'Grammar'),
+  AiFeatureInfo('summarize', Icons.summarize_rounded, 'Summarize', Color(0xFF6366F1)),
+  AiFeatureInfo('keypoints', Icons.checklist_rounded, 'Key Points', Color(0xFF0EA5E9)),
+  AiFeatureInfo('timeline', Icons.timeline_rounded, 'Timeline', Color(0xFFF59E0B)),
+  AiFeatureInfo('actions', Icons.task_alt_rounded, 'Actions', Color(0xFF22C55E)),
+  AiFeatureInfo('analyze', Icons.query_stats_rounded, 'Analyze', Color(0xFF8B5CF6)),
+  AiFeatureInfo('translate', Icons.translate_rounded, 'Translate', Color(0xFF06B6D4)),
+  AiFeatureInfo('citations', Icons.gavel_rounded, 'Citations', Color(0xFF9333EA)),
+  AiFeatureInfo('risks', Icons.warning_amber_rounded, 'Risk Scan', Color(0xFFEF4444)),
+  AiFeatureInfo('deadlines', Icons.event_rounded, 'Deadlines', Color(0xFFEC4899)),
+  AiFeatureInfo('autotags', Icons.label_rounded, 'Auto-Tags', Color(0xFF14B8A6)),
+  AiFeatureInfo('grammar', Icons.spellcheck_rounded, 'Grammar', Color(0xFF3B82F6)),
 ];
 
 /// A screen dedicated to ONE AI feature (e.g. just "Summarize").
@@ -427,7 +430,17 @@ class _AiFeatureDetailScreenState extends ConsumerState<AiFeatureDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(_feature.icon, color: AppColors.accent, size: 20),
+          Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                colors: [_feature.color, _feature.color.withValues(alpha: 0.7)],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(_feature.icon, color: Colors.white, size: 15),
+          ),
           const SizedBox(width: 8),
           Text(_feature.label),
         ]),
@@ -577,8 +590,18 @@ class _AiFeatureDetailScreenState extends ConsumerState<AiFeatureDetailScreen> {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(_feature.icon, color: AppColors.accent, size: 20),
-          const SizedBox(width: 8),
+          Container(
+            width: 34, height: 34,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                colors: [_feature.color, _feature.color.withValues(alpha: 0.7)],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_feature.icon, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 10),
           Expanded(child: Text(_copy[0],
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary))),

@@ -38,28 +38,52 @@ class AiFeaturesScreen extends StatelessWidget {
                 crossAxisCount: 3,
                 mainAxisSpacing: AppSpacing.sm,
                 crossAxisSpacing: AppSpacing.sm,
-                mainAxisExtent: 92,
+                mainAxisExtent: 108,
               ),
               itemCount: kAiFeatures.length,
               itemBuilder: (context, index) {
                 final f = kAiFeatures[index];
                 return InkWell(
                   onTap: () => context.push('${AppRoutes.aiFeatures}/${f.id}'),
-                  borderRadius: AppRadius.md,
+                  borderRadius: BorderRadius.circular(16),
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: AppRadius.md,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.outline),
+                      boxShadow: [
+                        BoxShadow(
+                          color: f.color.withValues(alpha: 0.10),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 4, vertical: 10),
+                        horizontal: 6, vertical: 12),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(f.icon, color: AppColors.textSecondary, size: 24),
-                        const SizedBox(height: 6),
+                        Container(
+                          width: 42, height: 42,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft, end: Alignment.bottomRight,
+                              colors: [f.color, f.color.withValues(alpha: 0.7)],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: f.color.withValues(alpha: 0.35),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Icon(f.icon, color: Colors.white, size: 22),
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           f.label,
                           textAlign: TextAlign.center,
@@ -67,8 +91,8 @@ class AiFeaturesScreen extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
                             height: 1.2,
                           ),
                         ),

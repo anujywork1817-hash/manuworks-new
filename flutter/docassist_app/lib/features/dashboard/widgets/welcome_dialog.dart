@@ -138,7 +138,7 @@ class _WelcomeDialog extends StatelessWidget {
                     spacing: 10, runSpacing: 10,
                     children: _highlightFeatures.map((id) {
                       final f = kAiFeatures.firstWhere((e) => e.id == id);
-                      return _FeatureChip(icon: f.icon, label: f.label, cs: cs, tt: tt);
+                      return _FeatureChip(icon: f.icon, label: f.label, color: f.color, cs: cs, tt: tt);
                     }).toList(),
                   ),
                   const SizedBox(height: 22),
@@ -242,19 +242,22 @@ class _WayCard extends StatelessWidget {
 class _FeatureChip extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color color;
   final ColorScheme cs;
   final TextTheme tt;
-  const _FeatureChip({required this.icon, required this.label, required this.cs, required this.tt});
+  const _FeatureChip({required this.icon, required this.label, required this.color,
+      required this.cs, required this.tt});
 
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.10),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: cs.outline),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 15, color: cs.primary),
+      Icon(icon, size: 15, color: color),
       const SizedBox(width: 6),
       Text(label, style: tt.labelSmall?.copyWith(fontWeight: FontWeight.w600)),
     ]),

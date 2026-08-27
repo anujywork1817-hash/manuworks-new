@@ -10,6 +10,7 @@ import '../../../core/services/usage_tracker.dart';
 import '../../../core/services/ai_history_service.dart';
 import '../../../core/services/document_export_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/fun_loading_word.dart';
 import '../../../core/network/dio_client.dart';
 import '../../documents/providers/document_provider.dart';
 import '../../ai_chat/providers/ai_provider.dart';
@@ -595,12 +596,12 @@ class _AiFeatureDetailScreenState extends ConsumerState<AiFeatureDetailScreen> {
         const SizedBox(height: 16),
 
         if (_running)
-          const Card(child: Padding(
-            padding: EdgeInsets.all(AppSpacing.lg),
+          Card(child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Center(child: Column(children: [
-              CircularProgressIndicator(),
-              SizedBox(height: AppSpacing.md),
-              Text('AI is thinking...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: AppSpacing.md),
+              const FunLoadingWord(),
             ])),
           )),
 

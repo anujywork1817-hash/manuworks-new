@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/fun_loading_word.dart';
 import '../providers/document_provider.dart';
 import '../../ai_chat/providers/ai_provider.dart';
 import '../../../core/services/usage_tracker.dart';
@@ -300,7 +301,8 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                   child: Column(children: [
                     const LinearProgressIndicator(),
                     const SizedBox(height: AppSpacing.md),
-                    const Text('Processing document with AI...'),
+                    FunLoadingWord(style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.primary, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text('OCR + Embeddings · please wait',
                         style: theme.textTheme.bodySmall),
@@ -343,12 +345,12 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
               // ── AI Result area ─────────────────────────────────────────
               if (_aiLoading)
-                const Card(child: Padding(
-                  padding: EdgeInsets.all(AppSpacing.lg),
+                Card(child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Center(child: Column(children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: AppSpacing.md),
-                    Text('AI is thinking...'),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: AppSpacing.md),
+                    const FunLoadingWord(),
                   ])),
                 )),
 

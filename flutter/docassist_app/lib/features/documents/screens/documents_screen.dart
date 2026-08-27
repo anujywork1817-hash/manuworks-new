@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
@@ -131,8 +132,12 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
             ),
             if (state.isUploading) ...[
               const SizedBox(height: AppSpacing.md),
-              Text('Uploading... ${(state.uploadProgress * 100).toInt()}%',
-                  style: theme.textTheme.bodySmall),
+              Row(children: [
+                const _FunLoadingWord(),
+                const Spacer(),
+                Text('${(state.uploadProgress * 100).toInt()}%',
+                    style: theme.textTheme.bodySmall),
+              ]),
               const SizedBox(height: 4),
               LinearProgressIndicator(value: state.uploadProgress),
             ],
@@ -274,4 +279,57 @@ class _EmptyState extends StatelessWidget {
       Text('Upload your first PDF or DOCX', style: Theme.of(context).textTheme.bodyMedium),
     ])),
   );
+}
+
+// ── Playful upload status word (Claude-style: "Cooking...", "Thinking...") ──
+const _kLoadingWords = [
+  'Uploading', 'Thinking', 'Cooking', 'Combobulating', 'Percolating',
+  'Marinating', 'Noodling', 'Conjuring', 'Wrangling', 'Churning',
+  'Simmering', 'Pondering', 'Deciphering', 'Untangling', 'Brewing',
+  'Flabbergasting', 'Sorcering',
+];
+
+class _FunLoadingWord extends StatefulWidget {
+  const _FunLoadingWord();
+  @override
+  State<_FunLoadingWord> createState() => _FunLoadingWordState();
+}
+
+class _FunLoadingWordState extends State<_FunLoadingWord> {
+  int _index = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (!mounted) return;
+      setState(() => _index = (_index + 1) % _kLoadingWords.length);
+    });
+  }
+
+  @override
+  void dispose() { _timer?.cancel(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(animation),
+          child: child,
+        ),
+      ),
+      child: Text(
+        '${_kLoadingWords[_index]}...',
+        key: ValueKey(_index),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 }

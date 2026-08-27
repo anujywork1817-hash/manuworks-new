@@ -7,6 +7,7 @@ import '../../../core/network/dio_client.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 import '../../../core/services/usage_tracker.dart';
+import '../widgets/welcome_dialog.dart';
 
 final dashboardStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   try {
@@ -20,11 +21,23 @@ final dashboardStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async 
   }
 });
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
+  @override
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) maybeShowWelcomeDialog(context);
+    });
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     ref.watch(dashboardStatsProvider); // keeps stats cached/refreshed for other screens
     final userAsync   = ref.watch(currentUserProvider);
     final unreadCount = ref.watch(notificationsProvider.select((s) => s.unreadCount));

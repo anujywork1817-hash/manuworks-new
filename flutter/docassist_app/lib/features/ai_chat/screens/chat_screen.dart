@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/router/router.dart';
 import '../providers/ai_provider.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -50,7 +52,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Scaffold(
       
       appBar: AppBar(
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go('${AppRoutes.documents}/${widget.documentId}'),
+        ),
         title: const Text('Chat with Document'),
         actions: [
           Container(

@@ -92,11 +92,6 @@ class _AiFeatureDetailScreenState extends ConsumerState<AiFeatureDetailScreen> {
     await prefs.setString(_resultKey(docId), result);
   }
 
-  Future<String?> _loadSavedResult(String docId) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_resultKey(docId));
-  }
-
   @override
   void initState() {
     super.initState();
@@ -351,15 +346,12 @@ class _AiFeatureDetailScreenState extends ConsumerState<AiFeatureDetailScreen> {
 
   Future<void> _downloadReport() => _handleReportAction(
         () async {
-          final file = await DocumentExportService.saveReportPdf(
+          await DocumentExportService.saveReportPdf(
               title: _reportTitle, content: _result!);
-          _downloadedPath = file?.path;
         },
         busyMessage: 'Downloading...',
         doneMessage: 'Saved to app documents folder',
       );
-
-  String? _downloadedPath;
 
   List<String> get _copy => kAiFeatureCopy[_feature.id] ?? [_feature.label, ''];
 
@@ -619,12 +611,12 @@ class _AiFeatureDetailScreenState extends ConsumerState<AiFeatureDetailScreen> {
         const SizedBox(height: 16),
 
         if (_running)
-          Card(child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+          const Card(child: Padding(
+            padding: EdgeInsets.all(AppSpacing.lg),
             child: Center(child: Column(children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: AppSpacing.md),
-              const FunLoadingWord(),
+              CircularProgressIndicator(),
+              SizedBox(height: AppSpacing.md),
+              FunLoadingWord(),
             ])),
           )),
 

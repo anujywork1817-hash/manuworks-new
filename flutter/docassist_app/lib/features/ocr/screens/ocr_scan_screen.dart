@@ -19,7 +19,6 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
   bool _isPdf = false; // true when the picked file is a PDF/DOCX rather than an image
   bool _scanning = false;
   String? _text;      // AI-generated summary shown to the user (clean, readable)
-  String? _rawText;   // original raw OCR text (kept for Copy / fallback)
   int _wordCount = 0;
   int _pageCount = 0;
   double _confidence = 0;
@@ -38,14 +37,14 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
     setState(() {
       _image = file;
       _isPdf = ext == 'pdf' || ext == 'doc' || ext == 'docx';
-      _text = null; _rawText = null;
+      _text = null;
       _error = null;
     });
   }
 
   Future<void> _extract() async {
     if (_image == null) return;
-    setState(() { _scanning = true; _error = null; _text = null; _rawText = null; });
+    setState(() { _scanning = true; _error = null; _text = null; });
 
     try {
       final multipartFile = _image!.bytes != null
@@ -72,7 +71,6 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
           // Show the AI-cleaned summary when we have one; only fall back to
           // raw (often garbled) OCR text if summarization wasn't available.
           _text = summary.trim().isNotEmpty ? summary.trim() : rawText;
-          _rawText = rawText;
           _wordCount = (data['word_count'] as num?)?.toInt() ?? 0;
           _pageCount = (data['page_count'] as num?)?.toInt() ?? 1;
           _confidence = (data['confidence'] as num?)?.toDouble() ?? 0;
@@ -120,7 +118,7 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
           if (_text != null)
             TextButton.icon(
               onPressed: () => setState(() {
-                _text = null; _rawText = null; _image = null; _isPdf = false;
+                _text = null; _image = null; _isPdf = false;
               }),
               icon: const Icon(Icons.refresh_rounded, size: 16),
               label: const Text('New Scan'),
@@ -187,7 +185,7 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => setState(() {
-                _image = null; _isPdf = false; _text = null; _rawText = null; _error = null;
+                _image = null; _isPdf = false; _text = null; _error = null;
               }),
               child: const Text('Change file'),
             ),

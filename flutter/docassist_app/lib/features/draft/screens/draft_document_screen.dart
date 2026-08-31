@@ -121,8 +121,6 @@ class DraftDocumentScreen extends ConsumerStatefulWidget {
 
 class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
   _DocType? _selected;
-  bool _showPicker = true;
-  bool _generating = false;
   String? _result;
   String? _resultTitle;
   String? _error;
@@ -135,7 +133,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
   // false -> either the prompt-entry box or (once a prompt has been sent)
   //          the detailed form is shown
   bool _showLanding = false;
-  bool _showPromptEntry = true;
   bool _promptGenerating = false;
   final _promptCtrl = TextEditingController();
 
@@ -146,7 +143,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
       for (final t in _docTypes) {
         if (t.id == widget.initialTypeId) {
           _selected = t;
-          _showPicker = false;
           break;
         }
       }
@@ -158,7 +154,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
   void _startNewDraft() {
     setState(() {
       _showLanding = false;
-      _showPromptEntry = true;
     });
   }
 
@@ -193,7 +188,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
       _selected = guessed;
       _factsCtrl.text = text;
       _additionalCtrl.text = text;
-      _showPromptEntry = false;
       _promptGenerating = true;
     });
     await _generate(requirePetitioner: false);
@@ -206,7 +200,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
       final message = _error ?? 'Generation failed. Please try again.';
       setState(() {
         _promptGenerating = false;
-        _showPromptEntry = true;
         _error = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -248,7 +241,7 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
       return;
     }
 
-    setState(() { _generating = true; _result = null; _error = null; });
+    setState(() { _result = null; _error = null; });
 
     try {
       final res = await DioClient.post('/ai/draft-legal', data: {
@@ -284,7 +277,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
         setState(() {
           _result = content;
           _resultTitle = title;
-          _generating = false;
           _saved = true;
         });
       }
@@ -294,7 +286,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
           _error = e.toString().contains('Daily AI')
               ? 'Daily AI limit reached. Please try again later.'
               : 'Generation failed: ${e.toString()}';
-          _generating = false;
         });
       }
     }
@@ -367,8 +358,6 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
                 _result = null;
                 _selected = null;
                 _saved = false;
-                _showPromptEntry = true;
-                _showPicker = true;
                 _promptCtrl.clear();
               }),
               icon: const Icon(Icons.refresh_rounded, size: 16),
@@ -733,214 +722,4 @@ class _DraftDocumentScreenState extends ConsumerState<DraftDocumentScreen> {
       ),
     )),
   ]);
-
-  // ── Form view ────────────────────────────────────────────────────────────────
-
-  Widget _buildForm() => SingleChildScrollView(
-    padding: const EdgeInsets.all(16),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-      // Document type picker — hidden when a specific type was opened directly
-      if (_showPicker) ...[
-        const Text('Select Document Type',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary, letterSpacing: 0.5)),
-        const SizedBox(height: 12),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 2.6,
-          children: _docTypes.map((t) => _TypeTile(
-            type: t,
-            selected: _selected?.id == t.id,
-            onTap: () => setState(() { _selected = t; _result = null; _showPicker = false; }),
-          )).toList(),
-        ),
-      ] else if (_selected != null) ...[
-        TextButton.icon(
-          onPressed: () => setState(() {
-            _showPicker = true;
-          }),
-          icon: const Icon(Icons.swap_horiz_rounded, size: 16),
-          label: const Text('Change document type'),
-          style: TextButton.styleFrom(padding: EdgeInsets.zero),
-        ),
-      ],
-
-      if (_selected != null) ...[
-        const SizedBox(height: 24),
-
-        // Section header
-        Row(children: [
-          Container(
-            width: 36, height: 36,
-            decoration: BoxDecoration(
-              color: _selected!.color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(_selected!.icon, color: _selected!.color, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(_selected!.label,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary)),
-            Text(_selected!.hint,
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-          ]),
-        ]),
-        const SizedBox(height: 16),
-
-        // Fields
-        _field(_courtCtrl, 'Court Name',
-            'e.g. High Court of Judicature at Bombay', Icons.account_balance_outlined),
-        _field(_petCtrl, 'Petitioner / Applicant / Plaintiff *',
-            'Full name of the moving party', Icons.person_outlined),
-        _field(_respCtrl, 'Respondent / Defendant / Opposite Party',
-            'Full name of the other party', Icons.person_off_outlined),
-
-        if (_needsCaseNumber()) ...[
-          _field(_caseNoCtrl, 'Case / Application Number',
-              'e.g. CRL.P. No. 1234/2024', Icons.tag),
-        ],
-
-        _field(_subjectCtrl, 'Subject / Matter in Brief',
-            'e.g. Wrongful termination of service', Icons.subject_outlined),
-        _field(_factsCtrl, 'Facts & Grounds *',
-            'State the key facts chronologically. Include dates, events, and legal basis.',
-            Icons.notes_outlined, lines: 6),
-        _field(_reliefCtrl, 'Relief / Prayer Sought',
-            'What order/direction are you seeking from the court?',
-            Icons.how_to_vote_outlined, lines: 3),
-        _field(_actsCtrl, 'Acts & Sections',
-            'e.g. Section 302 IPC, Article 21 Constitution',
-            Icons.gavel_outlined),
-        _field(_additionalCtrl, 'Additional Information',
-            'Any other details the AI should include',
-            Icons.add_circle_outline, lines: 3),
-
-        const SizedBox(height: 8),
-
-        if (_error != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.errorContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(children: [
-              const Icon(Icons.error_outline, color: AppColors.error, size: 16),
-              const SizedBox(width: 8),
-              Expanded(child: Text(_error!,
-                  style: const TextStyle(color: AppColors.error, fontSize: 13))),
-            ]),
-          ),
-
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _generating ? null : _generate,
-            icon: _generating
-                ? const SizedBox(width: 16, height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.surface))
-                : const Icon(Icons.auto_awesome_rounded),
-            label: Text(_generating ? 'Drafting document...' : 'Generate Draft'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-        const SizedBox(height: 32),
-      ],
-    ]),
-  );
-
-  bool _needsCaseNumber() {
-    final id = _selected?.id ?? '';
-    return id.contains('Reply') || id.contains('Counter') ||
-        id.contains('Appeal') || id.contains('Application');
-  }
-
-  Widget _field(TextEditingController ctrl, String label, String hint,
-      IconData icon, {int lines = 1}) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 14),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151))),
-          const SizedBox(height: 6),
-          TextField(
-            controller: ctrl,
-            maxLines: lines,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: const TextStyle(fontSize: 12, color: AppColors.textDisabled),
-              prefixIcon: lines == 1
-                  ? Icon(icon, size: 17, color: AppColors.textTertiary)
-                  : null,
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.outline),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.outline),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12, vertical: lines > 1 ? 12 : 0),
-            ),
-          ),
-        ]),
-      );
-}
-
-// ── Type tile ─────────────────────────────────────────────────────────────────
-
-class _TypeTile extends StatelessWidget {
-  final _DocType type;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _TypeTile({required this.type, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-      decoration: BoxDecoration(
-        color: selected ? type.color.withValues(alpha: 0.1) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: selected ? type.color : AppColors.outline,
-          width: selected ? 1.5 : 1,
-        ),
-        boxShadow: selected ? [] : AppShadows.sm,
-      ),
-      child: Row(children: [
-        Icon(type.icon, color: selected ? type.color : AppColors.textTertiary, size: 18),
-        const SizedBox(width: 8),
-        Expanded(child: Text(type.label,
-            maxLines: 2, overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected ? type.color : const Color(0xFF374151),
-            ))),
-      ]),
-    ),
-  );
 }

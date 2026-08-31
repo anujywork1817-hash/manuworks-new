@@ -351,10 +351,10 @@ class _RechargeCreditsScreenState extends ConsumerState<RechargeCreditsScreen> {
             const SizedBox(height: 2),
             Text(subtitle, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
           ])),
-          Radio<String>(
-            value: id, groupValue: _rechargeOption,
-            onChanged: (v) => setState(() => _rechargeOption = v ?? _rechargeOption),
-            activeColor: AppColors.primary,
+          Icon(
+            selected ? Icons.radio_button_checked : Icons.radio_button_off,
+            color: selected ? AppColors.primary : AppColors.textSecondary,
+            size: 22,
           ),
         ]),
       ),
@@ -390,10 +390,10 @@ class _RechargeCreditsScreenState extends ConsumerState<RechargeCreditsScreen> {
             Text(p['price']! as String, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold,
                 color: AppColors.primary)),
             const SizedBox(width: 10),
-            Radio<String>(
-              value: p['id']! as String, groupValue: _selectedPlan,
-              onChanged: (v) => setState(() => _selectedPlan = v),
-              activeColor: AppColors.primary,
+            Icon(
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: selected ? AppColors.primary : AppColors.textSecondary,
+              size: 22,
             ),
           ]),
         ),

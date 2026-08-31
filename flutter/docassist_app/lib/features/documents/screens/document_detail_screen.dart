@@ -345,12 +345,12 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
               // ── AI Result area ─────────────────────────────────────────
               if (_aiLoading)
-                Card(child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
+                const Card(child: Padding(
+                  padding: EdgeInsets.all(AppSpacing.lg),
                   child: Center(child: Column(children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: AppSpacing.md),
-                    const FunLoadingWord(),
+                    CircularProgressIndicator(),
+                    SizedBox(height: AppSpacing.md),
+                    FunLoadingWord(),
                   ])),
                 )),
 

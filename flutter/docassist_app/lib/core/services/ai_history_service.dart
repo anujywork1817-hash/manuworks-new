@@ -47,19 +47,27 @@ class AiHistoryService {
   AiHistoryService._();
 
   static const _uuid = Uuid();
+  static const retention = Duration(days: 2);
   static String _key(String featureId) => 'ai_history_v1_$featureId';
 
-  /// All saved entries for [featureId], newest first.
+  /// All saved entries for [featureId], newest first. Entries older than
+  /// [retention] are dropped and the trimmed list is persisted back, so
+  /// local storage doesn't grow unbounded with old AI results.
   static Future<List<AiHistoryEntry>> getAll(String featureId) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key(featureId));
     if (raw == null || raw.isEmpty) return [];
     try {
       final list = jsonDecode(raw) as List;
-      final entries = list
+      final all = list
           .map((e) => AiHistoryEntry.fromJson(Map<String, dynamic>.from(e)))
           .toList();
+      final cutoff = DateTime.now().subtract(retention);
+      final entries = all.where((e) => e.createdAt.isAfter(cutoff)).toList();
       entries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      if (entries.length != all.length) {
+        await _persist(featureId, entries);
+      }
       return entries;
     } catch (_) {
       return [];
